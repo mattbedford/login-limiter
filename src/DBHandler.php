@@ -4,12 +4,9 @@ namespace LAL;
 
 global $wpdb;
 
-class DBHandler {
-    const TABLE = 'login_attempts';
+abstract class DBHandler {
 
-    public function __construct() {
-        register_activation_hook(__FILE__, [__CLASS__, 'create_table']);
-    }
+    public const TABLE = 'login_attempts';
 
     public static function create_table() {
         global $wpdb;

@@ -35,7 +35,7 @@ class SettingsPage {
             </form>
             <hr>
             <h2>Logs</h2>
-            <label>Filter by Date (YYYY-MM-DD): <input type="date" id="lal-log-filter" /></label>
+            <label>Filter by Date: <input type="date" id="lal-log-filter" value="<?php date('Y-m-d'); ?>"/></label>
             <div id="lal-log-output" style="margin-top:1em;white-space:pre;background:#fff;border:1px solid #ccc;padding:1em;"></div>
             <button id="lal-clear-logs" class="button button-secondary">Clear Logs</button>
         </div>
