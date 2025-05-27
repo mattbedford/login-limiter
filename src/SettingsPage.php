@@ -34,6 +34,28 @@ class SettingsPage {
                 ?>
             </form>
             <hr>
+            <h2>Ban/Whitelist Management</h2>
+            <form id="lal-banlist-form">
+                <h3>IP Whitelist</h3>
+                <textarea name="whitelist" rows="4" style="width: 100%;"><?php
+                    echo esc_textarea(implode("\n", get_option('lal_whitelist', [])));
+                    ?></textarea>
+
+                <h3>Ban List</h3>
+                <p><strong>IPs:</strong></p>
+                <textarea name="ban_ips" rows="4" style="width: 100%;"><?php
+                    $bans = get_option('lal_ban_list', ['ips' => [], 'users' => []]);
+                    echo esc_textarea(implode("\n", $bans['ips']));
+                    ?></textarea>
+
+                <p><strong>Usernames:</strong></p>
+                <textarea name="ban_users" rows="4" style="width: 100%;"><?php
+                    echo esc_textarea(implode("\n", $bans['users']));
+                    ?></textarea>
+
+                <p><button class="button button-primary">Save Lists</button></p>
+            </form>
+            <hr>
             <h2>Logs</h2>
             <label>Filter by Date: <input type="date" id="lal-log-filter" value="<?php date('Y-m-d'); ?>"/></label>
             <div id="lal-log-output" style="margin-top:1em;white-space:pre;background:#fff;border:1px solid #ccc;padding:1em;"></div>

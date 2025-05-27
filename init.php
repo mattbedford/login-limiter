@@ -2,7 +2,7 @@
 /*
 Plugin Name: Login Attempt Limiter
 Description: Limits login attempts with ban/whitelist, REST API management, and admin settings/log viewer.
-Version: 1.2
+Version: 1.3
 Author: Matt Bedford
 Author uri: https://mattbedford.com
 Text domain: lal;
