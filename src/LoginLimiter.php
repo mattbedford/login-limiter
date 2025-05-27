@@ -34,6 +34,8 @@ class LoginLimiter {
             }
         }
 
+        add_filter( 'login_errors', \LAL\Helpers::class, 'remove_all_login_errors');
+
         return $user;
     }
 
