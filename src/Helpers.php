@@ -3,7 +3,7 @@
 
 namespace LAL;
 
-class Helpers {
+abstract class Helpers {
     public static function get_client_ip() {
         return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     }

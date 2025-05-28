@@ -1,8 +1,8 @@
 <?php
 
-// src/IPBanManager.php
 namespace LAL;
 
+// TODO: Make this an abstract class
 class IPBanManager {
     public static function is_banned($ip, $username) {
         $bans = get_option('lal_ban_list', ['ips' => [], 'users' => []]);

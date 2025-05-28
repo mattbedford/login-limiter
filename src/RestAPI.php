@@ -1,7 +1,5 @@
 <?php
 
-
-// src/RestAPI.php
 namespace LAL;
 
 class RestAPI {

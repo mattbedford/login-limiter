@@ -1,6 +1,5 @@
 <?php
 
-// src/SettingsPage.php
 namespace LAL;
 
 class SettingsPage {

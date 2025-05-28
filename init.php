@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Login Attempt Limiter
-Description: Limits login attempts with ban/whitelist, REST API management, and admin settings/log viewer.
-Version: 1.5
+Description: Limits login attempts with IP and username management
+Version: 1.5.2
 Author: Matt Bedford
 Author uri: https://mattbedford.com
 Text domain: lal;
@@ -12,7 +12,6 @@ namespace LAL;
 
 if (!defined('ABSPATH')) exit;
 
-// Manual includes
 require_once __DIR__ . '/src/Helpers.php';
 require_once __DIR__ . '/src/DBHandler.php';
 require_once __DIR__ . '/src/IPBanManager.php';
