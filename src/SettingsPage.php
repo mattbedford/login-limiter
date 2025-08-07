@@ -36,6 +36,30 @@ class SettingsPage {
             $settings = get_option('lal_settings');
             echo "<input type='number' name='lal_settings[timeout_minutes]' value='" . esc_attr($settings['timeout_minutes'] ?? 10) . "' min='1' />";
         }, 'login-attempt-limiter', 'lal_main');
+
+        add_settings_field(
+            'lal_turnstile_sitekey',
+            'Cloudflare Turnstile Site Key',
+            [$this, 'text_field'],
+            'login-attempt-limiter',
+            'lal_main',
+            ['label_for' => 'lal_turnstile_sitekey']
+        );
+
+        add_settings_field(
+            'lal_turnstile_secret',
+            'Cloudflare Turnstile Secret Key',
+            [$this, 'text_field'],
+            'login-attempt-limiter',
+            'lal_main',
+            ['label_for' => 'lal_turnstile_secret']
+        );
+    }
+
+    public function text_field($args) {
+        $name = $args['label_for'];
+        $value = esc_attr(get_option($name, ''));
+        echo "<input type='text' id='{$name}' name='{$name}' value='{$value}' class='regular-text'>";
     }
 
     public function page() {

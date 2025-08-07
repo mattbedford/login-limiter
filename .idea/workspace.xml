@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="34fa6dc1-2b71-47ed-b61f-eaa83721bd03" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/StopUserEnumeration.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/init.php" beforeDir="false" afterPath="$PROJECT_DIR$/init.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/login-attempt-limiter.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DBHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/DBHandler.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Helpers.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Helpers.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/IPBanManager.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/IPBanManager.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/LoginLimiter.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/LoginLimiter.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/RestAPI.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/RestAPI.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/turnstile-inject.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/TurnstileHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/SettingsPage.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/SettingsPage.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -39,6 +38,10 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
@@ -59,7 +62,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1754561463255</updated>
-      <workItem from="1754561464268" duration="291000" />
+      <workItem from="1754561464268" duration="3932000" />
     </task>
     <servers />
   </component>
