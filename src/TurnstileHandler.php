@@ -5,6 +5,9 @@ namespace LAL\src;
 class TurnstileHandler {
 
     public static function init() {
+        if (!get_option('lal_turnstile_enabled')) {
+            return; // feature turned off
+        }
         // Render widgets
         add_action('login_form', [self::class, 'render_widget']);
         add_action('woocommerce_login_form', [self::class, 'render_widget']);
@@ -23,6 +26,7 @@ class TurnstileHandler {
     }
 
     public static function validate_token($user, $username, $password) {
+        if (!get_option('lal_turnstile_enabled')) return $user; // skip verification if disabled
         if (isset($_POST['cf-turnstile-response'])) {
             $token = sanitize_text_field($_POST['cf-turnstile-response']);
             if (!self::verify_token($token)) {
@@ -36,6 +40,8 @@ class TurnstileHandler {
     }
 
     protected static function verify_token($token) {
+        if (!get_option('lal_turnstile_enabled')) return true; // skip verification if disabled
+
         $secret = get_option('lal_turnstile_secret', '');
         $remoteip = $_SERVER['REMOTE_ADDR'] ?? '';
 

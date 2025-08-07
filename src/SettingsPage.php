@@ -38,6 +38,17 @@ class SettingsPage {
         }, 'login-attempt-limiter', 'lal_main');
 
         add_settings_field(
+            'lal_turnstile_enabled',
+            'Enable Cloudflare Turnstile',
+            function () {
+                $enabled = get_option('lal_turnstile_enabled', false);
+                echo '<input type="checkbox" name="lal_turnstile_enabled" value="1"' . checked($enabled, 1, false) . '> Enable Turnstile protection on login and forms';
+            },
+            'login-attempt-limiter',
+            'lal_main'
+        );
+
+        add_settings_field(
             'lal_turnstile_sitekey',
             'Cloudflare Turnstile Site Key',
             [$this, 'text_field'],
