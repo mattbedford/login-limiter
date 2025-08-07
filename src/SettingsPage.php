@@ -24,6 +24,9 @@ class SettingsPage {
 
     public function register_settings() {
         register_setting('lal_settings_group', 'lal_settings');
+        register_setting('lal_settings_group', 'lal_turnstile_enabled');
+        register_setting('lal_settings_group', 'lal_turnstile_sitekey');
+        register_setting('lal_settings_group', 'lal_turnstile_secret');
 
         add_settings_section('lal_main', 'Login Limiter Settings', null, 'login-attempt-limiter');
 
