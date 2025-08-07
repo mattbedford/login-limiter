@@ -1,6 +1,6 @@
 <?php
 
-namespace LAL;
+namespace LAL\src;
 
 // TODO: Make this an abstract class
 class IPBanManager {
