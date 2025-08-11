@@ -15,9 +15,13 @@ final class Config
 
 	public static function fromOptions(): self
 	{
-		$opts = get_option('lal_turnstile', []);
-		$site  = is_string($opts['site_key'] ?? '') ? $opts['site_key'] : '';
-		$secret= is_string($opts['secret_key'] ?? '') ? $opts['secret_key'] : '';
+		$group = get_option('lal_turnstile', []);
+		$site  = is_string($group['site_key']   ?? '') ? trim($group['site_key'])   : '';
+		$secret= is_string($group['secret_key'] ?? '') ? trim($group['secret_key']) : '';
+
+		// Fallback to legacy individual options if group is empty
+		if ($site === '')   { $site   = (string) get_option('lal_turnstile_sitekey', ''); }
+		if ($secret === '') { $secret = (string) get_option('lal_turnstile_secret', ''); }
 
 		if ($site === '' || $secret === '') {
 			throw new \RuntimeException('Turnstile keys are missing.');

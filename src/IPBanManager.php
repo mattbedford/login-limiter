@@ -2,7 +2,7 @@
 
 namespace LAL\src;
 
-// TODO: Make this an abstract class
+
 abstract class IPBanManager {
     public static function is_banned($ip, $username) {
         $bans = get_option('lal_ban_list', ['ips' => [], 'users' => []]);
