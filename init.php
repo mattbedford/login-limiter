@@ -2,7 +2,7 @@
 /*
 Plugin Name: Login Attempt Limiter
 Description: Limits login attempts with IP and username management
-Version: 2.2.1
+Version: 2.2.3
 Author: Matt Bedford
 Author uri: https://mattbedford.com
 Text domain: lal;
