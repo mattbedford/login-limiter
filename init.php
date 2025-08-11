@@ -31,6 +31,30 @@ register_activation_hook( __FILE__, static function() {
 } );
 
 
+
+add_action('login_enqueue_scripts', function (): void {
+    // Load Turnstile API into <head> on login screen
+    wp_enqueue_script(
+        'lal-turnstile',
+        'https://challenges.cloudflare.com/turnstile/v0/api.js',
+        [],
+        null,
+        false // MUST be false (no footer on login head by default)
+    );
+}, 9);
+
+add_action('login_form', function (): void {
+    // Render managed widget
+    $opts = (array) get_option('lal_turnstile', []);
+    $site = isset($opts['site_key']) && is_string($opts['site_key']) ? $opts['site_key'] : '';
+    if ($site === '') {
+        echo '<p style="color:#c00">Turnstile site key missing</p>';
+        return;
+    }
+    echo '<div class="cf-turnstile" data-sitekey="' . esc_attr($site) . '" data-appearance="always"></div>';
+});
+
+
 add_action('plugins_loaded', function () {
     \Lal\src\StopUserEnumeration::init();
     new \Lal\src\LoginLimiter();
