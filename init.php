@@ -38,7 +38,7 @@ add_action('plugins_loaded', function () {
     new \LAL\src\LoginLimiter();
     new \LAL\src\SettingsPage();
     new \LAL\src\RestAPI();
-    \LAL\src\TurnstileHandler::init(); // ← add this
+    \LAL\src\TurnstileHandler::init();
 });
 
 

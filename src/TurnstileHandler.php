@@ -2,8 +2,8 @@
 
 namespace LAL\src;
 
-use \LAL\Security\Turnstile;
-use \LAL\Security\TurnstileOptions;
+use LAL\Src\Security\Turnstile;
+use LAL\Src\Security\TurnstileOptions;
 
 class TurnstileHandler
 {
