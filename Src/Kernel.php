@@ -1,5 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
+namespace LAL\Src;
+
+use LAL\Src\Cloudflare\Config;
+use LAL\Src\Cloudflare\LoginGuard;
+use LAL\Src\Cloudflare\RouteGuard;
+use LAL\Src\Includes\Settings;
+
 final class Kernel
 {
 	/** Edit these if you ever need to change coverage. */
