@@ -4,42 +4,15 @@ namespace LAL\src;
 
 use LAL\src\Security\Config;
 use LAL\src\Security\RouteGuard;
-use LAL\Src\Security\Turnstile;
-use LAL\Src\Security\TurnstileOptions;
+use LAL\src\Security\Turnstile;
+use LAL\src\Security\TurnstileOptions;
 
-class TurnstileHandler
+final class TurnstileHandler
 {
-    private static ?Turnstile $svc = null;
-
-    private static function svc(): Turnstile
-    {
-        if (self::$svc instanceof Turnstile) {
-            return self::$svc;
-        }
-
-        $siteKey = defined('TURNSTILE_SITEKEY') ? (string) TURNSTILE_SITEKEY : (string) get_option('lal_turnstile_sitekey', '');
-        $secret  = defined('TURNSTILE_SECRET')  ? (string) TURNSTILE_SECRET  : (string) get_option('lal_turnstile_secret', '');
-        $theme   = (string) get_option('lal_turnstile_theme', 'auto');
-        $size = (string) get_option('lal_turnstile_size', 'normal');
-
-        $validSizes = ['normal', 'compact', 'flexible'];
-        if (!in_array($size, $validSizes, true)) {
-            $size = 'normal';
-        }
-
-        self::$svc = new Turnstile(new TurnstileOptions(
-            siteKey:  $siteKey,
-            secretKey: $secret,
-            theme:    $theme,
-            size:     $size
-        ));
-        return self::$svc;
-    }
-
 	public static function init(): void
 	{
 		add_action('init', static function (): void {
-			// 1) Build a shared Config (options → fallback to constants)
+			// 1) Build shared Config once
 			$config = null;
 			try {
 				$config = Config::fromOptions();
@@ -55,26 +28,18 @@ class TurnstileHandler
 				}
 			}
 			if (!$config instanceof Config) {
-				return; // keys missing — nothing to do
+				return; // keys missing — bail cleanly
 			}
 
 			// 2) Instantiate once; share everywhere
-			$turnstile = new Turnstile($config);
 			$options   = new TurnstileOptions($config);
+			$turnstile = new Turnstile($config);
 
-			// 3) Login screen hooks (your existing method)
-			if (method_exists(self::class, 'attachToLogin')) {
-				self::attachToLogin($turnstile, $options);
-			}
+			// 3) Login screen: attach visible widget + server-side check
+			$turnstile->attachToLogin($options);
 
-			// 4) Route‑based protection (/checkout, /my-account, etc.)
+			// 4) Front-end routes (/checkout, /my-account, ...)
 			RouteGuard::init($options, $turnstile);
 		}, 1);
 	}
-
-    // Back-compat if anything still calls this
-    public static function verify_token(string $token): bool
-    {
-        return self::svc()->verify($token, $_SERVER['REMOTE_ADDR'] ?? '')->ok;
-    }
 }
