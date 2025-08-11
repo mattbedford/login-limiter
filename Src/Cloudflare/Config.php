@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace LAL\Src\Cloudflare\Turnstile;
+namespace LAL\Src\Cloudflare;
 
 final class Config
 {
