@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Login Attempt Limiter
+Plugin Name: Login Limiter
 Description: Limits login attempts with IP and username management
 Version: 2.2.3
 Author: Matt Bedford
