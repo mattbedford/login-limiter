@@ -38,6 +38,8 @@ final class Turnstile
                     'refresh-timeout'   => 'auto',
                     'theme'             => $this->opts->theme,
                     'size'              => $this->opts->size,
+                    'routes_enabled' => true,
+                    'routes'         => [ '/wp-admin/', '/checkout/', '/my-account/' ],
                 ],
             ];
             wp_add_inline_script(

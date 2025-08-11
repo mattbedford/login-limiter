@@ -2,6 +2,8 @@
 
 namespace LAL\src;
 
+use LAL\src\Security\Config;
+use LAL\src\Security\RouteGuard;
 use LAL\Src\Security\Turnstile;
 use LAL\Src\Security\TurnstileOptions;
 
@@ -34,13 +36,41 @@ class TurnstileHandler
         return self::$svc;
     }
 
-    public static function init(): void
-    {
-        if (!get_option('lal_turnstile_enabled')) {
-            return;
-        }
-        self::svc()->attachToLogin(); // login only for now
-    }
+	public static function init(): void
+	{
+		add_action('init', static function (): void {
+			// 1) Build a shared Config (options → fallback to constants)
+			$config = null;
+			try {
+				$config = Config::fromOptions();
+			} catch (\Throwable $e) {
+				if (defined('LAL_TURNSTILE_SITE') && defined('LAL_TURNSTILE_SECRET')) {
+					$config = new Config(
+						(string) LAL_TURNSTILE_SITE,
+						(string) LAL_TURNSTILE_SECRET,
+						'managed',
+						'normal',
+						'auto'
+					);
+				}
+			}
+			if (!$config instanceof Config) {
+				return; // keys missing — nothing to do
+			}
+
+			// 2) Instantiate once; share everywhere
+			$turnstile = new Turnstile($config);
+			$options   = new TurnstileOptions($config);
+
+			// 3) Login screen hooks (your existing method)
+			if (method_exists(self::class, 'attachToLogin')) {
+				self::attachToLogin($turnstile, $options);
+			}
+
+			// 4) Route‑based protection (/checkout, /my-account, etc.)
+			RouteGuard::init($options, $turnstile);
+		}, 1);
+	}
 
     // Back-compat if anything still calls this
     public static function verify_token(string $token): bool
