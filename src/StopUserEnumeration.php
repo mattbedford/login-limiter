@@ -17,8 +17,6 @@ class StopUserEnumeration {
         // Block author archives and ?author=1
         add_action('template_redirect', [self::class, 'block_author_archives']);
 
-        // Hide login error details
-        add_filter('login_errors', [self::class, 'generic_login_error']);
     }
 
     public static function disable_users_endpoint($endpoints) {
@@ -38,9 +36,5 @@ class StopUserEnumeration {
             wp_redirect(home_url(), 301);
             exit;
         }
-    }
-
-    public static function generic_login_error() {
-        return __('Login failed. Please try again.', 'your-plugin-textdomain');
     }
 }
