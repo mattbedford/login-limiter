@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace LAL\src;
+namespace LAL\old\src;
 
-use LAL\src\Security\Config;
-use LAL\src\Security\RouteGuard;
-use LAL\src\Security\Turnstile;
-use LAL\src\Security\TurnstileOptions;
+use LAL\old\src\Security\Config;
+use LAL\old\src\Security\RouteGuard;
+use LAL\old\src\Security\Turnstile;
+use LAL\old\src\Security\TurnstileOptions;
 
 final class TurnstileHandler
 {

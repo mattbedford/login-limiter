@@ -1,7 +1,7 @@
 <?php
 
 
-namespace LAL\src;
+namespace LAL\old\src;
 
 abstract class Helpers {
     public static function get_client_ip() {

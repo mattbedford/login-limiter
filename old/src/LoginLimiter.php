@@ -1,6 +1,6 @@
 <?php
 
-namespace LAL\src;
+namespace LAL\old\src;
 
 class LoginLimiter {
     private $settings;

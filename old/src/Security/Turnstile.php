@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace LAL\src\Security;
+namespace LAL\old\src\Security;
 
 final class Turnstile
 {
