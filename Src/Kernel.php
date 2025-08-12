@@ -6,6 +6,7 @@ namespace LAL\Src;
 
 use LAL\Src\Cloudflare\Config;
 use LAL\Src\Cloudflare\LoginGuard;
+use LAL\Src\Cloudflare\CheckoutGuard;
 use LAL\Src\Cloudflare\RouteGuard;
 use LAL\Src\Includes\Settings;
 
@@ -28,6 +29,9 @@ final class Kernel
 
 		// Protect the login page (wp-login.php) only.
 		\LAL\Src\Cloudflare\LoginGuard::init($config);
+
+		// Protect just the checkout template
+		\LAL\Src\Cloudflare\CheckoutGuard::init($config);
 
 		// Front-end routes only (not wp-admin).
 		$paths = apply_filters('lal_cloudflare_protected_paths', self::PROTECTED_PATHS);
