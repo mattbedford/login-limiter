@@ -34,27 +34,67 @@ final class LoginGuard
 		// Explicit render — visible (debug), robust
 		add_action('login_footer', function (): void {
 			?>
-			<script>
+            <script>
                 (function () {
-                    var el = document.getElementById('lal-turnstile');
-                    if (!el) return;
-                    function render(){
-                        if (!window.turnstile) { setTimeout(render, 150); return; }
-                        window.turnstile.render(el, {
-                            sitekey: "<?php echo esc_js($this->cfg->siteKey); ?>",
-                            appearance: "always",
-                            theme: "<?php echo esc_js($this->cfg->theme); ?>",
-                            size: "<?php echo esc_js($this->cfg->size); ?>",
-                            execution: "execute",
-                            retry: "auto",
-                            "retry-interval": 8000,
-                            "refresh-expired": "auto",
-                            "refresh-timeout": "auto"
-                        });
+                    var form   = document.getElementById('loginform');            // core wp-login form
+                    var holder = document.getElementById('lal-turnstile');        // our placeholder inside the form
+                    if (!form || !holder) return;
+
+                    var widgetId = null;
+                    var submitting = false;
+
+                    function ensureHiddenField() {
+                        var input = form.querySelector('input[name="cf-turnstile-response"]');
+                        if (!input) {
+                            input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'cf-turnstile-response';
+                            form.appendChild(input);
+                        }
+                        return input;
                     }
+
+                    function render() {
+                        if (!window.turnstile) { setTimeout(render, 120); return; }
+                        if (widgetId !== null) return;
+
+                        widgetId = window.turnstile.render(holder, {
+                            sitekey: "<?php echo esc_js($this->config->siteKey); ?>",
+                            appearance: "always",                               // keep visible for now
+                            theme: "<?php echo esc_js($this->config->theme); ?>",
+                            size: "<?php echo esc_js($this->config->size); ?>",
+                            execution: "execute",                               // ← token only when we execute
+                            "refresh-expired": "auto",
+                            "refresh-timeout": "auto",
+                            callback: function (token) {
+                                ensureHiddenField().value = token;                // guarantee POST contains the token
+                                submitting = false;
+                                form.submit();                                    // proceed only after we have a token
+                            },
+                            "error-callback": function () {
+                                submitting = false;
+                                alert("Verification failed. Please try again.");
+                            }
+                        });
+
+                        // Gate the submit: if no token yet, execute first
+                        form.addEventListener('submit', function (e) {
+                            var token = window.turnstile.getResponse(widgetId);
+                            if (token && token.length > 0) {
+                                ensureHiddenField().value = token;
+                                return true;                                      // already have a token
+                            }
+                            if (submitting) { e.preventDefault(); return false; }
+                            e.preventDefault();
+                            submitting = true;
+                            window.turnstile.execute(widgetId);                 // this will trigger callback() above
+                            return false;
+                        }, { passive: false });
+                    }
+
                     render();
                 })();
-			</script>
+            </script>
 			<?php
 		}, 99);
 
