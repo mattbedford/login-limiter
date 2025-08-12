@@ -20,59 +20,67 @@ final class RouteGuard
 	public function injectOnGet(): void
 	{
 		if (is_admin()) return;
+		if (is_user_logged_in()) return;
 		if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') return;
-		if (!$this->isProtectedPath($this->currentPath())) return;
 
-		// 1) Load API early to avoid race conditions
+		$path = $this->currentPath();
+
+		// Target ONLY the Woo login form on /my-account/
+		if (!str_starts_with($path, '/my-account/')) return;
+
+		// Load CF API in head
 		add_action('wp_enqueue_scripts', function (): void {
 			wp_enqueue_script(
 				'lal-cf-turnstile',
 				'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit',
 				[],
 				null,
-				false // head
+				false
 			);
 		}, 9);
 
-		// 2) Inject placeholders + explicit render for every form (idempotent)
+		// Render into: form.woocommerce-form.woocommerce-form-login.login
 		add_action('wp_footer', function (): void {
 			$siteKey = esc_js($this->config->siteKey);
 			$theme   = esc_js($this->config->theme);
 			$size    = esc_js($this->config->size);
 			?>
-			<script>
+            <script>
                 (function () {
-                    function ensureWidgets() {
-                        var forms = document.querySelectorAll('form'); // TODO: target forms better on specific page basis
-                        for (var i = 0; i < forms.length; i++) {
-                            var f = forms[i];
-                            if (f.querySelector('.cf-turnstile')) continue;
-                            var holder = document.createElement('div');
+                    function render() {
+                        var form = document.querySelector('form.woocommerce-form.woocommerce-form-login.login');
+                        if (!form) return;
+                        // Ensure single placeholder near the submit button
+                        var id = 'lal-turnstile-myaccount';
+                        var holder = document.getElementById(id);
+                        if (!holder) {
+                            holder = document.createElement('div');
+                            holder.id = id;
                             holder.className = 'cf-turnstile';
                             holder.style.margin = '12px 0';
-                            f.appendChild(holder);
+                            // Try to place just before the submit
+                            var submit = form.querySelector('button, input[type="submit"]');
+                            if (submit && submit.parentNode) {
+                                submit.parentNode.insertBefore(holder, submit);
+                            } else {
+                                form.appendChild(holder);
+                            }
                         }
-                    }
-                    function render() {
                         if (!window.turnstile) { setTimeout(render, 150); return; }
-                        document.querySelectorAll('form .cf-turnstile').forEach(function (el) {
-                            // If already rendered, turnstile ignores gracefully.
-                            window.turnstile.render(el, {
-                                sitekey: "<?php echo $siteKey; ?>",
-                                appearance: "always", // visible for now (debug); we can relax later
-                                theme: "<?php echo $theme; ?>",
-                                size: "<?php echo $size; ?>",
-                                retry: "auto",
-                                "retry-interval": 8000,
-                                "refresh-expired": "auto",
-                                "refresh-timeout": "auto"
-                            });
+                        window.turnstile.render(holder, {
+                            sitekey: "<?php echo $siteKey; ?>",
+                            appearance: "always", // visible for now
+                            theme: "<?php echo $theme; ?>",
+                            size: "<?php echo $size; ?>",
+                            retry: "auto",
+                            "retry-interval": 8000,
+                            "refresh-expired": "auto",
+                            "refresh-timeout": "auto"
                         });
                     }
-                    ensureWidgets();
                     render();
                 })();
-			</script>
+            </script>
 			<?php
 		}, 99);
 	}
@@ -80,7 +88,16 @@ final class RouteGuard
 	public function verifyOnPost(): void
 	{
 		if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') return;
-		if (!$this->isProtectedPath($this->currentPath())) return;
+		if (is_user_logged_in()) return;
+
+		$path = $this->currentPath();
+
+		// Only handle Woo login form submits on /my-account/
+		if (!str_starts_with($path, '/my-account/')) return;
+
+		// Heuristic: Woo login has these posted
+		$isWooLogin = isset($_POST['username'], $_POST['password'], $_POST['woocommerce-login-nonce']);
+		if (!$isWooLogin) return;
 
 		$token  = isset($_POST['cf-turnstile-response']) && is_string($_POST['cf-turnstile-response'])
 			? $_POST['cf-turnstile-response'] : '';
@@ -88,7 +105,7 @@ final class RouteGuard
 
 		if (!$this->verify($token, $remote)) {
 			wp_die(
-				esc_html__('Please tick the "I am not a robot" box and try again.', 'lal'),
+				esc_html__('Please complete the human verification challenge and try again.', 'lal'),
 				esc_html__('Verification required', 'lal'),
 				['response' => 403]
 			);
