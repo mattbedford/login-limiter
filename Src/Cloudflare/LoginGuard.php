@@ -45,6 +45,7 @@ final class LoginGuard
                             appearance: "always",
                             theme: "<?php echo esc_js($this->cfg->theme); ?>",
                             size: "<?php echo esc_js($this->cfg->size); ?>",
+                            execution: "execute",
                             retry: "auto",
                             "retry-interval": 8000,
                             "refresh-expired": "auto",
