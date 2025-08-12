@@ -20,6 +20,10 @@ final class CheckoutGuard
 
 			// Classic checkout server-side validation
 			add_action('woocommerce_checkout_process', [$self, 'verifyOnProcess'], 5);
+
+            // Validate in Woo's structured validator (AJAX and some themes)
+			add_action('woocommerce_after_checkout_validation', [$self, 'verifyAfterValidation'], 5, 2);
+
 		}, 1);
 	}
 
@@ -143,5 +147,21 @@ final class CheckoutGuard
 
 		$json = json_decode((string) wp_remote_retrieve_body($resp), true);
 		return is_array($json) ? (bool) ($json['success'] ?? false) : false;
+	}
+
+	public function verifyAfterValidation(array $postedData, \WP_Error $errors): void
+	{
+		if (is_user_logged_in()) return;
+
+		$token  = isset($_POST['cf-turnstile-response']) && is_string($_POST['cf-turnstile-response'])
+			? $_POST['cf-turnstile-response'] : '';
+		$remote = is_string($_SERVER['REMOTE_ADDR'] ?? null) ? (string) $_SERVER['REMOTE_ADDR'] : '';
+
+		if (!$this->verify($token, $remote)) {
+			$errors->add('lal_turnstile_failed', __('Please complete the human verification challenge and try again.', 'lal'));
+		}
+
+		// --- optional, remove after confirming behavior ---
+		error_log('[Turnstile][checkout] token=' . substr($token, 0, 12) . '… verify=' . ($this->verify($token, $remote) ? 'ok' : 'fail'));
 	}
 }
