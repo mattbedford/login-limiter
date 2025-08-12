@@ -43,7 +43,7 @@ final class RouteGuard
 			<script>
                 (function () {
                     function ensureWidgets() {
-                        var forms = document.querySelectorAll('form');
+                        var forms = document.querySelectorAll('form'); // TODO: target forms better on specific page basis
                         for (var i = 0; i < forms.length; i++) {
                             var f = forms[i];
                             if (f.querySelector('.cf-turnstile')) continue;
@@ -88,7 +88,7 @@ final class RouteGuard
 
 		if (!$this->verify($token, $remote)) {
 			wp_die(
-				esc_html__('Please complete the human verification challenge and try again.', 'lal'),
+				esc_html__('Please tick the "I am not a robot" box and try again.', 'lal'),
 				esc_html__('Verification required', 'lal'),
 				['response' => 403]
 			);
