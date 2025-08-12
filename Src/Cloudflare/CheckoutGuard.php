@@ -11,17 +11,14 @@ final class CheckoutGuard
 	{
 		$self = new self($config);
 
-		// Only hook when we're actually on checkout (and logged out)
 		add_action('wp', static function () use ($self): void {
 			if (!function_exists('is_checkout') || !is_checkout()) return;
-			if (is_user_logged_in()) return;
+			if (is_user_logged_in()) return; // front door only
 
-			// Inject the widget into the checkout form
 			add_action('wp_enqueue_scripts', [$self, 'enqueueApi'], 9);
-			add_action('woocommerce_review_order_before_submit', [$self, 'injectHolder'], 9);
-			add_action('wp_footer', [$self, 'renderScript'], 99);
+			add_action('wp_footer',          [$self, 'renderIntoForm'], 99);
 
-			// Verify server-side during Woo validation (works for wc-ajax=checkout too)
+			// Classic checkout server-side validation
 			add_action('woocommerce_checkout_process', [$self, 'verifyOnProcess'], 5);
 		}, 1);
 	}
@@ -37,30 +34,48 @@ final class CheckoutGuard
 		);
 	}
 
-	/** Places the placeholder inside the Woo checkout form, right above the submit button. */
-	public function injectHolder(): void
-	{
-		echo '<div id="lal-turnstile-checkout" class="cf-turnstile" style="margin:12px 0"></div>';
-	}
-
-	/** Explicitly renders the widget; re-renders after Woo updates the order review fragment. */
-	public function renderScript(): void
+	/** Injects a placeholder into form.checkout.woocommerce-checkout and renders explicitly. */
+	public function renderIntoForm(): void
 	{
 		$siteKey = esc_js($this->config->siteKey);
 		$theme   = esc_js($this->config->theme);
 		$size    = esc_js($this->config->size);
 		?>
-		<script>
+        <script>
             (function () {
-                function render() {
-                    var el = document.getElementById('lal-turnstile-checkout');
-                    if (!el) return;
-                    if (!window.turnstile) { setTimeout(render, 150); return; }
-                    if (el.getAttribute('data-rendered') === '1') return;
+                function ensureHolder(form) {
+                    if (!form) return null;
+                    var id = 'lal-turnstile-checkout';
+                    var holder = document.getElementById(id);
+                    if (!holder) {
+                        holder = document.createElement('div');
+                        holder.id = id;
+                        holder.className = 'cf-turnstile';
+                        holder.style.margin = '12px 0';
 
-                    window.turnstile.render(el, {
+                        // Prefer right above "Place order" (#place_order). Fallback: end of form.
+                        var place = form.querySelector('#place_order');
+                        if (place && place.parentNode) {
+                            place.parentNode.insertBefore(holder, place);
+                        } else {
+                            form.appendChild(holder);
+                        }
+                    }
+                    return holder;
+                }
+
+                function render() {
+                    var form = document.querySelector('form.checkout.woocommerce-checkout');
+                    if (!form) return;
+                    var holder = ensureHolder(form);
+                    if (!holder) return;
+
+                    if (!window.turnstile) { setTimeout(render, 150); return; }
+                    if (holder.getAttribute('data-rendered') === '1') return;
+
+                    window.turnstile.render(holder, {
                         sitekey: "<?php echo $siteKey; ?>",
-                        appearance: "always", // keep visible for now; we can relax later
+                        appearance: "always", // keep visible while we verify UX; can relax later
                         theme: "<?php echo $theme; ?>",
                         size: "<?php echo $size; ?>",
                         retry: "auto",
@@ -68,22 +83,28 @@ final class CheckoutGuard
                         "refresh-expired": "auto",
                         "refresh-timeout": "auto"
                     });
-                    el.setAttribute('data-rendered', '1');
+                    holder.setAttribute('data-rendered', '1');
                 }
 
+                // Initial render
                 render();
-                // Woo fires 'updated_checkout' whenever the order review fragment refreshes
+
+                // Re-render when Woo updates checkout fragments
                 document.addEventListener('updated_checkout', render);
                 if (window.jQuery) jQuery(document.body).on('updated_checkout', render);
+
+                // Safety: observe DOM mutations in case themes replace the form markup
+                var mo = new MutationObserver(function () { render(); });
+                mo.observe(document.body, { childList: true, subtree: true });
             })();
-		</script>
+        </script>
 		<?php
 	}
 
-	/** Fail-closed during Woo validation; blocks before payment processing. */
+	/** Blocks before payment processing in classic checkout. */
 	public function verifyOnProcess(): void
 	{
-		if (is_user_logged_in()) return; // front door only
+		if (is_user_logged_in()) return;
 
 		$token  = isset($_POST['cf-turnstile-response']) && is_string($_POST['cf-turnstile-response'])
 			? $_POST['cf-turnstile-response'] : '';

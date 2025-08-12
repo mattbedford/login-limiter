@@ -30,11 +30,12 @@ final class Kernel
 		// Protect the login page (wp-login.php) only.
 		\LAL\Src\Cloudflare\LoginGuard::init($config);
 
-		// Protect just the checkout template
-		\LAL\Src\Cloudflare\CheckoutGuard::init($config);
-
 		// Front-end routes only (not wp-admin).
 		$paths = apply_filters('lal_cloudflare_protected_paths', self::PROTECTED_PATHS);
 		\LAL\Src\Cloudflare\RouteGuard::init($config, is_array($paths) ? $paths : self::PROTECTED_PATHS);
+
+		// Protect just the checkout template
+		\LAL\Src\Cloudflare\CheckoutGuard::init($config);
+
 	}
 }
